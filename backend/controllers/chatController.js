@@ -1,27 +1,15 @@
-const ChatModel = require('../models/chatModel').default;
-
 const ChatController = {
-    send: async (req, res) => {
-        const { fromUserId, toProfessionalId, message } = req.body;
-        try {
-            const newMessage = await ChatModel.sendMessage(fromUserId, toProfessionalId, message);
-            res.json(newMessage);
-        } catch (error) {
-            console.error('Erro ao enviar mensagem:', error);
-            res.status(500).send('Erro ao enviar mensagem');
-        }
-    },
+  // Para enviar mensagens, não será necessário acessar o banco
+  sendMessage: (fromUserId, toProfessionalId, message) => {
+    // Aqui, a mensagem será apenas enviada via Socket.IO, sem armazenamento
+    // A lógica de envio de mensagens agora será gerenciada pelo Socket.IO no server.js
+  },
 
-    getMessages: async (req, res) => {
-        const { userId, professionalId } = req.params;
-        try {
-            const messages = await ChatModel.getMessages(userId, professionalId);
-            res.json(messages);
-        } catch (error) {
-            console.error('Erro ao carregar mensagens:', error);
-            res.status(500).send('Erro ao carregar mensagens');
-        }
-    }
+  // Para recuperar mensagens, isso também não será mais necessário, pois as mensagens
+  // não são armazenadas no banco.
+  getMessages: (userId, professionalId) => {
+    return [];  // Não há mais mensagens no banco de dados
+  }
 };
 
 module.exports = ChatController;

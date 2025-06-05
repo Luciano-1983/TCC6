@@ -1,45 +1,61 @@
-// Importa o framework Express
 const express = require('express');
-
-// Importa o CORS (para permitir requisições de origens diferentes, como frontend separado)
+const http = require('http');
+const socketIo = require('socket.io'); // Importando o socket.io
 const cors = require('cors');
-
-// Importa o body-parser para interpretar o corpo das requisições como JSON
 const bodyParser = require('body-parser');
+const path = require('path');
 
-// Importa os arquivos de rotas
 const userRoutes = require('./routes/userRoutes');
 const professionalRoutes = require('./routes/professionalRoutes');
 
-// Importa o módulo path, usado para trabalhar com caminhos de arquivos e diretórios
-const path = require('path');
-
-// Cria a instância da aplicação Express
 const app = express();
+const server = http.createServer(app);
+const io = socketIo(server); // Inicializando o Socket.IO
 
-// Define a porta do servidor, usando a variável de ambiente se disponível, ou 5000 por padrão
 const PORT = process.env.PORT || 5000;
 
-// Habilita o uso de CORS
 app.use(cors());
-
-// Habilita o uso de JSON no body das requisições
 app.use(bodyParser.json());
-
-// Middleware para servir arquivos estáticos do diretório do frontend
-// Útil para quando você quiser entregar um frontend simples via Express (como HTML, JS, CSS)
 app.use(express.static(path.join(__dirname, '../frontend')));
 
-// Rota raiz, apenas para teste ou mensagem de boas-vindas
-app.get('/', (req, res) => {
-    res.send('Bem-vindo ao Sistema de Cuidadores API!');
+// Rotas
+app.use('/api/users', userRoutes);
+app.use('/api/professionals', professionalRoutes);
+
+// Conexão Socket.IO
+let users = {};  // Armazenando os usuários conectados com seus respectivos sockets
+
+io.on('connection', (socket) => {
+  console.log('Usuário conectado: ' + socket.id);
+
+  // Recebe o ID do usuário ou profissional ao conectar, para associar o socket
+  socket.on('login', (userData) => {
+    const { userId, type } = userData;
+    users[socket.id] = { userId, type }; // Armazena o usuário ou profissional pelo ID do socket
+    console.log(`${type} com ID ${userId} conectado.`);
+  });
+
+  // Envio de mensagens
+  socket.on('send_message', (data) => {
+    const { fromUserId, toProfessionalId, message } = data;
+
+    // Identificando o socket do profissional para enviar a mensagem
+    for (const [socketId, user] of Object.entries(users)) {
+      if (user.userId === toProfessionalId && user.type === 'professional') {
+        io.to(socketId).emit('receive_message', { fromUserId, message });
+        break;
+      }
+    }
+  });
+
+  // Desconexão do socket
+  socket.on('disconnect', () => {
+    console.log('Usuário desconectado: ' + socket.id);
+    delete users[socket.id]; // Remove o usuário ou profissional da lista ao desconectar
+  });
 });
 
-// Define os prefixos das rotas da API
-app.use('/api/users', userRoutes);               // Ex: /api/users/register, /api/users/login
-app.use('/api/professionals', professionalRoutes); // Ex: /api/professionals/login
-
-// Inicializa o servidor e escuta na porta especificada
-app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
+// Inicializa o servidor
+server.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
 });

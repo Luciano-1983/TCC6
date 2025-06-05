@@ -57,12 +57,79 @@ document.addEventListener('DOMContentLoaded', () => {
     const registerUsuarioForm = document.getElementById('register-usuario-form');
     const voltarLoginUsuarioButton = document.getElementById('voltar-login-usuario');
 
+    // Conexão com o Socket.IO
+    const socket = io(); // Conecta ao servidor Socket.IO
+
     // Carrega usuários e profissionais do localStorage
     let usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
     let usuarioLogado = null;
 
     let profissionais = JSON.parse(localStorage.getItem('profissionais') || '[]');
     let profissionalLogado = null;
+
+    // Função para enviar a mensagem
+document.getElementById('user-chat-send-button').addEventListener('click', () => {
+  const message = document.getElementById('user-chat-message-input').value;
+  
+  // Verifica se a mensagem não está vazia
+  if (message.trim() !== "") {
+    const userId = 1; // Exemplo: ID do usuário logado (isso deve ser dinâmico, vindo do login)
+    const professionalId = 2; // Exemplo: ID do profissional logado (isso deve ser dinâmico, vindo do login)
+    
+    // Emite o evento de enviar mensagem
+    socket.emit('send_message', { fromUserId: userId, toProfessionalId: professionalId, message });
+
+    // Limpa o campo de entrada após o envio
+    document.getElementById('user-chat-message-input').value = '';
+  } else {
+    alert("Digite uma mensagem para enviar.");
+  }
+});
+
+// Função para receber as mensagens em tempo real
+socket.on('receive_message', (data) => {
+  const { fromUserId, message } = data;
+  
+  // Exibe a mensagem recebida na interface de chat
+  const messageContainer = document.getElementById('user-chat-messages');
+  const newMessage = document.createElement('div');
+  
+  // Aqui estamos exibindo a mensagem com o prefixo "Profissional", mas isso pode ser ajustado conforme a necessidade
+  newMessage.textContent = `Profissional: ${message}`;
+  messageContainer.appendChild(newMessage);
+  
+  // Mantém a rolagem para a última mensagem
+  messageContainer.scrollTop = messageContainer.scrollHeight;
+});
+
+// Função para inicializar a sessão do usuário/profissional
+// Isso deve ser chamado após o login bem-sucedido
+function login(userId, type) {
+  socket.emit('login', { userId, type });
+  document.getElementById('chat-section').classList.remove('hidden'); // Exibe a seção de chat
+}
+
+// Exemplo de como você pode tratar o login do profissional e do usuário
+// Ao fazer login, por exemplo, os IDs dos usuários são passados para o Socket.IO para associar o socket
+
+// Aqui simula o login do usuário e profissional para testes (você deve substituí-los pela lógica de login real)
+document.getElementById('profissional-login-form').addEventListener('submit', (event) => {
+  event.preventDefault();
+
+  const userId = 1; // Exemplo de ID de profissional (deve vir do sistema de login)
+  const type = 'professional'; // Definindo o tipo como profissional
+
+  login(userId, type);
+});
+
+document.getElementById('usuario-login-form').addEventListener('submit', (event) => {
+  event.preventDefault();
+
+  const userId = 2; // Exemplo de ID de usuário (deve vir do sistema de login)
+  const type = 'user'; // Definindo o tipo como usuário
+
+  login(userId, type);
+});
 
     // === Funções para exibir diferentes seções da interface ===
     function showSection(section) {
