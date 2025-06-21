@@ -22,37 +22,60 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 app.use('/api/users', userRoutes);
 app.use('/api/professionals', professionalRoutes);
 
-// Conexão Socket.IO
-let users = {};  // Armazenando os usuários conectados com seus respectivos sockets
+let usuariosConectados = {};
+let profissionaisConectados = {};
 
+// Gerenciar a conexão dos usuários
 io.on('connection', (socket) => {
-  console.log('Usuário conectado: ' + socket.id);
+    console.log('Usuário conectado:', socket.id);
 
-  // Recebe o ID do usuário ou profissional ao conectar, para associar o socket
-  socket.on('login', (userData) => {
-    const { userId, type } = userData;
-    users[socket.id] = { userId, type }; // Armazena o usuário ou profissional pelo ID do socket
-    console.log(`${type} com ID ${userId} conectado.`);
-  });
+    // Quando o usuário faz login, ele envia seu ID e o tipo (usuário ou profissional)
+    socket.on('login', (data) => {
+        if (data.type === 'user') {
+            usuariosConectados[socket.id] = data.userId;
+            console.log('Usuário conectado com ID:', data.userId);
+        } else if (data.type === 'professional') {
+            profissionaisConectados[socket.id] = data.userId;
+            console.log('Profissional conectado com ID:', data.userId);
+        }
+    });
 
-  // Envio de mensagens
-  socket.on('send_message', (data) => {
-    const { fromUserId, toProfessionalId, message } = data;
+    // Receber mensagens e encaminhar para o profissional específico
+    socket.on('send_message', (data) => {
+        const { fromUserId, toProfessionalId, message } = data;
 
-    // Identificando o socket do profissional para enviar a mensagem
-    for (const [socketId, user] of Object.entries(users)) {
-      if (user.userId === toProfessionalId && user.type === 'professional') {
-        io.to(socketId).emit('receive_message', { fromUserId, message });
-        break;
-      }
-    }
-  });
+        // Envia a mensagem para o profissional correto
+        for (let socketId in profissionaisConectados) {
+            if (profissionaisConectados[socketId] === toProfessionalId) {
+                io.to(socketId).emit('receive_message', {
+                    fromUserId,
+                    message
+                });
+                console.log('Mensagem enviada ao profissional:', toProfessionalId);
+                break;
+            }
+        }
+    });
 
-  // Desconexão do socket
-  socket.on('disconnect', () => {
-    console.log('Usuário desconectado: ' + socket.id);
-    delete users[socket.id]; // Remove o usuário ou profissional da lista ao desconectar
-  });
+    // Desconectar o usuário ou profissional
+    socket.on('disconnect', () => {
+        // Remover usuário ou profissional desconectado
+        for (let socketId in usuariosConectados) {
+            if (socketId === socket.id) {
+                delete usuariosConectados[socketId];
+                console.log('Usuário desconectado:', socket.id);
+                break;
+            }
+        }
+
+        for (let socketId in profissionaisConectados) {
+            if (socketId === socket.id) {
+                delete profissionaisConectados[socketId];
+                console.log('Profissional desconectado:', socket.id);
+                break;
+            }
+        }
+    });
 });
 
 // Inicializa o servidor

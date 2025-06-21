@@ -60,76 +60,91 @@ document.addEventListener('DOMContentLoaded', () => {
     // Conexão com o Socket.IO
     const socket = io(); // Conecta ao servidor Socket.IO
 
-    // Carrega usuários e profissionais do localStorage
-    let usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
-    let usuarioLogado = null;
-
-    let profissionais = JSON.parse(localStorage.getItem('profissionais') || '[]');
     let profissionalLogado = null;
+    let usuarioLogado = null;
+    let profissionalIdSelecionado = null;  // Armazena o ID do profissional escolhido pelo usuário
 
-    // Função para enviar a mensagem
-document.getElementById('user-chat-send-button').addEventListener('click', () => {
-  const message = document.getElementById('user-chat-message-input').value;
-  
-  // Verifica se a mensagem não está vazia
-  if (message.trim() !== "") {
-    const userId = 1; // Exemplo: ID do usuário logado (isso deve ser dinâmico, vindo do login)
-    const professionalId = 2; // Exemplo: ID do profissional logado (isso deve ser dinâmico, vindo do login)
+    // Função para enviar mensagens
+    document.getElementById('user-chat-send-button').addEventListener('click', () => {
+        const message = document.getElementById('user-chat-message-input').value;
+        
+        // Verifica se a mensagem não está vazia
+        if (message.trim() !== "" && profissionalIdSelecionado) {
+            socket.emit('send_message', { fromUserId: usuarioLogado.id, toProfessionalId: profissionalIdSelecionado, message });
+            exibirMensagemNoChat('Você: ' + message, 'sent');
+            document.getElementById('user-chat-message-input').value = ''; // Limpa o campo
+        } else {
+            alert("Digite uma mensagem para enviar.");
+        }
+    });
+
+    // Exibe a mensagem no chat
+    function exibirMensagemNoChat(message, type) {
+        const messageContainer = document.getElementById('user-chat-messages');
+        const newMessage = document.createElement('div');
+        newMessage.classList.add('message', type); // 'sent' ou 'received'
+        newMessage.textContent = message;
+        messageContainer.appendChild(newMessage);
+        messageContainer.scrollTop = messageContainer.scrollHeight;
+    }
+
+    // Recebe as mensagens em tempo real
+    socket.on('receive_message', (data) => {
+        const { fromUserId, message } = data;
+        exibirMensagemNoChat('Profissional: ' + message, 'received');
+    });
+
+    // Função para login do usuário ou profissional
+    function login(userId, type) {
+        socket.emit('login', { userId, type });
+        
+        // Exibe a seção de chat para o usuário
+        if (type === 'user') {
+            document.getElementById('chat-section').classList.remove('hidden'); 
+        }
+        
+        // Exibe a tela de chat para o profissional
+        if (type === 'professional') {
+            document.getElementById('professional-chat-section').classList.remove('hidden');
+            profissionalLogado = { id: userId };  // Exemplo: Alocar ID do profissional após login
+        }
+    }
+
+    // Função para selecionar o profissional e abrir o chat
+    document.getElementById('lista-profissionais').addEventListener('click', function(event) {
+        if (event.target.classList.contains('chat-button')) {
+            profissionalIdSelecionado = event.target.dataset.profissionalId;
+            iniciarChatComProfissional(profissionalIdSelecionado);
+        }
+    });
+
+    function iniciarChatComProfissional(profissionalId) {
+        console.log(`Iniciando chat com o profissional de ID: ${profissionalId}`);
+        document.getElementById('chat-section').classList.remove('hidden');
+        profissionalIdSelecionado = profissionalId;
+    }
+
+    // Fechar o chat
+    document.getElementById('user-chat-close-button').addEventListener('click', () => {
+        document.getElementById('chat-section').classList.add('hidden');
+    });
+
+    document.getElementById('professional-chat-close-button').addEventListener('click', () => {
+        document.getElementById('professional-chat-section').classList.add('hidden');
+    });
+
+    // Simulação de login
+    document.getElementById('profissional-login-form').addEventListener('submit', (event) => {
+        event.preventDefault();
+        login(1, 'professional'); // Exemplo de login para o profissional
+    });
+
+    document.getElementById('usuario-login-form').addEventListener('submit', (event) => {
+        event.preventDefault();
+        login(2, 'user'); // Exemplo de login para o usuário
+    });
+
     
-    // Emite o evento de enviar mensagem
-    socket.emit('send_message', { fromUserId: userId, toProfessionalId: professionalId, message });
-
-    // Limpa o campo de entrada após o envio
-    document.getElementById('user-chat-message-input').value = '';
-  } else {
-    alert("Digite uma mensagem para enviar.");
-  }
-});
-
-// Função para receber as mensagens em tempo real
-socket.on('receive_message', (data) => {
-  const { fromUserId, message } = data;
-  
-  // Exibe a mensagem recebida na interface de chat
-  const messageContainer = document.getElementById('user-chat-messages');
-  const newMessage = document.createElement('div');
-  
-  // Aqui estamos exibindo a mensagem com o prefixo "Profissional", mas isso pode ser ajustado conforme a necessidade
-  newMessage.textContent = `Profissional: ${message}`;
-  messageContainer.appendChild(newMessage);
-  
-  // Mantém a rolagem para a última mensagem
-  messageContainer.scrollTop = messageContainer.scrollHeight;
-});
-
-// Função para inicializar a sessão do usuário/profissional
-// Isso deve ser chamado após o login bem-sucedido
-function login(userId, type) {
-  socket.emit('login', { userId, type });
-  document.getElementById('chat-section').classList.remove('hidden'); // Exibe a seção de chat
-}
-
-// Exemplo de como você pode tratar o login do profissional e do usuário
-// Ao fazer login, por exemplo, os IDs dos usuários são passados para o Socket.IO para associar o socket
-
-// Aqui simula o login do usuário e profissional para testes (você deve substituí-los pela lógica de login real)
-document.getElementById('profissional-login-form').addEventListener('submit', (event) => {
-  event.preventDefault();
-
-  const userId = 1; // Exemplo de ID de profissional (deve vir do sistema de login)
-  const type = 'professional'; // Definindo o tipo como profissional
-
-  login(userId, type);
-});
-
-document.getElementById('usuario-login-form').addEventListener('submit', (event) => {
-  event.preventDefault();
-
-  const userId = 2; // Exemplo de ID de usuário (deve vir do sistema de login)
-  const type = 'user'; // Definindo o tipo como usuário
-
-  login(userId, type);
-});
 
     // === Funções para exibir diferentes seções da interface ===
     function showSection(section) {
@@ -254,87 +269,56 @@ document.getElementById('usuario-login-form').addEventListener('submit', (event)
 
     // === Edição dos dados do profissional ===
     editarDadosButton.addEventListener('click', () => {
-    showSection(editarProfissionalFormSection);
-
-    // Verificar se os campos existem antes de definir os valores
-    const nomeField = document.getElementById('editar-profissional-nome');
-    if (nomeField) nomeField.value = profissionalLogado.nome;
-    else console.error('Elemento de nome não encontrado!');
-
-    const emailField = document.getElementById('editar-profissional-email');
-    if (emailField) emailField.value = profissionalLogado.email;
-    else console.error('Elemento de email não encontrado!');
-
-    const senhaField = document.getElementById('editar-profissional-senha');
-    if (senhaField) senhaField.value = profissionalLogado.senha;
-    else console.error('Elemento de senha não encontrado!');
-
-    const telefoneField = document.getElementById('editar-profissional-telefone');
-    if (telefoneField) telefoneField.value = profissionalLogado.telefone;
-    else console.error('Elemento de telefone não encontrado!');
-
-    const cidadeField = document.getElementById('editar-profissional-cidade');
-    if (cidadeField) cidadeField.value = profissionalLogado.cidade;
-    else console.error('Elemento de cidade não encontrado!');
-
-    const especialidadeField = document.getElementById('editar-profissional-especialidade');
-    if (especialidadeField) especialidadeField.value = profissionalLogado.especialidade;
-    else console.error('Elemento de especialidade não encontrado!');
-
-    const registroField = document.getElementById('editar-profissional-registro');
-    if (registroField) registroField.value = profissionalLogado.registro;
-    else console.error('Elemento de registro não encontrado!');
-});
+        showSection(editarProfissionalFormSection);
+        // Preenchendo os campos com os dados do profissional
+        document.getElementById('editar-profissional-nome').value = profissionalLogado.nome;
+        document.getElementById('editar-profissional-email').value = profissionalLogado.email;
+        document.getElementById('editar-profissional-telefone').value = profissionalLogado.telefone;
+        document.getElementById('editar-profissional-cidade').value = profissionalLogado.cidade;
+        document.getElementById('editar-profissional-especialidade').value = profissionalLogado.especialidade;
+        document.getElementById('editar-profissional-registro').value = profissionalLogado.registro;
+    });
 
     cancelarEdicaoButton.addEventListener('click', () => {
         showProfissionalDashboard(profissionalLogado);
     });
 
     editarRegisterProfissionalForm.addEventListener('submit', async (event) => {
-    event.preventDefault(); // Impede o comportamento padrão de recarregar a página
+        event.preventDefault(); 
+        // Coletar os dados atualizados
+        const updatedData = {
+            nome: document.getElementById('editar-profissional-nome').value,
+            email: document.getElementById('editar-profissional-email').value,
+            senha: document.getElementById('editar-profissional-senha').value,
+            telefone: document.getElementById('editar-profissional-telefone').value,
+            cidade: document.getElementById('editar-profissional-cidade').value,
+            especialidade: document.getElementById('editar-profissional-especialidade').value,
+            registro: document.getElementById('editar-profissional-registro').value
+        };
 
-    // Coletar os dados atualizados de todos os campos
-    const updatedData = {
-        nome: document.getElementById('editar-profissional-nome').value,
-        email: document.getElementById('editar-profissional-email').value,
-        senha: document.getElementById('editar-profissional-senha').value,
-        telefone: document.getElementById('editar-profissional-telefone').value,
-        cidade: document.getElementById('editar-profissional-cidade').value,
-        especialidade: document.getElementById('editar-profissional-especialidade').value,
-        registro: document.getElementById('editar-profissional-registro').value
-    };
+        const profissionalId = profissionalLogado.id;  
 
-    // Verificar se todos os campos obrigatórios estão preenchidos
-    if (!updatedData.nome || !updatedData.email || !updatedData.senha || !updatedData.telefone || !updatedData.cidade || !updatedData.especialidade) {
-        alert('Por favor, preencha todos os campos obrigatórios.');
-        return;
-    }
+        try {
+            const response = await fetch(`http://localhost:5000/api/professionals/${profissionalId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedData),
+            });
 
-    const profissionalId = profissionalLogado.id;  // Certifique-se de que o ID do profissional está correto
+            if (!response.ok) {
+                throw new Error('Erro ao atualizar os dados.');
+            }
 
-    try {
-        const response = await fetch(`http://localhost:5000/api/professionals/${profissionalId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(updatedData)  // Envia os dados atualizados
-        });
-
-        if (!response.ok) {
-            throw new Error('Erro ao atualizar os dados.');
+            const updatedProfessional = await response.json();
+            localStorage.setItem('logado', JSON.stringify(updatedProfessional));  
+            profissionalLogado = updatedProfessional;
+            showProfissionalDashboard(updatedProfessional);  
+            alert('Dados atualizados com sucesso!');
+        } catch (error) {
+            console.error('Erro ao atualizar:', error);
+            alert(`Erro ao atualizar: ${error.message}`);
         }
-
-        const updatedProfessional = await response.json();
-        localStorage.setItem('logado', JSON.stringify(updatedProfessional));  // Atualiza os dados no localStorage
-        profissionalLogado = updatedProfessional;
-        showProfissionalDashboard(updatedProfessional);  // Exibe o dashboard atualizado
-        alert('Dados atualizados com sucesso!');
-    } catch (error) {
-        console.error('Erro ao atualizar:', error);
-        alert(`Erro ao atualizar: ${error.message}`);
-    }
-});
+    });
 
     logoutProfissionalButton.addEventListener('click', () => {
         localStorage.removeItem('logado');
@@ -396,11 +380,9 @@ document.getElementById('usuario-login-form').addEventListener('submit', (event)
                 const li = document.createElement('li');
                 li.innerHTML = `
                     <strong>${profissional.nome}</strong><br>
-                    Telefone: ${profissional.telefone}<br>
                     Cidade: ${profissional.cidade}<br>
                     Especialidade: ${profissional.especialidade}<br>
-                    Registro: ${profissional.registro}
-                    <button class="verificar-registro" data-registro="${profissional.registro}">Verificar Registro</button>
+                    <button class="chat-button" data-profissional-id="${profissional.id}">Iniciar Chat</button>
                 `;
                 listaProfissionais.appendChild(li);
             });
@@ -412,12 +394,17 @@ document.getElementById('usuario-login-form').addEventListener('submit', (event)
     });
 
     listaProfissionais.addEventListener('click', function(event) {
-        if (event.target.classList.contains('verificar-registro')) {
-            const registro = event.target.dataset.registro;
-            const corenURL = `https://www.portalcoren-rs.gov.br/index.php?categoria=servicos&pagina=consulta-profissional&Inscricao=${registro}`;
-            window.open(corenURL, '_blank');
+        if (event.target.classList.contains('chat-button')) {
+            const profissionalId = event.target.dataset.profissionalId;
+            iniciarChatComProfissional(profissionalId);
         }
     });
+
+    // Função para iniciar o chat com o profissional
+    function iniciarChatComProfissional(profissionalId) {
+        console.log("Iniciando chat com o profissional com ID: " + profissionalId);
+        document.getElementById('chat-section').classList.remove('hidden');
+    }
 
     // === Login e registro do usuário comum ===
     usuarioRegisterButton.addEventListener('click', () => {
@@ -472,6 +459,30 @@ document.getElementById('usuario-login-form').addEventListener('submit', (event)
             alert('Erro ao cadastrar usuário.');
         }
     });
+
+    // Função para inicializar a sessão do usuário/profissional
+function login(userId, type) {
+    socket.emit('login', { userId, type });
+    
+    // Verifica se o elemento de chat existe antes de tentar exibi-lo
+    const chatSection = document.getElementById('chat-section');
+    if (chatSection) {
+        chatSection.classList.remove('hidden'); // Exibe a seção de chat para o usuário
+    } else {
+        console.error('Elemento de chat não encontrado!');
+    }
+
+    // Verifica se o profissional está logado e exibe o chat para o profissional
+    if (type === 'professional') {
+        const professionalChatSection = document.getElementById('professional-chat-section');
+        if (professionalChatSection) {
+            professionalChatSection.classList.remove('hidden');
+        } else {
+            console.error('Elemento de chat do profissional não encontrado!');
+        }
+    }
+
+    }
 
     // === Verificações de login automático na inicialização ===
     checkLogin();

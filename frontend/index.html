@@ -1,17 +1,18 @@
+<!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Sistema de Cuidadores - CAREGIVER ANYWHERE</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
   
   <script src="/socket.io/socket.io.js"></script> <!-- Inclusão do Socket.IO -->
   <script type="module" src="script.js"></script>
   
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 </head>
 
@@ -80,9 +81,9 @@
       <h2><span class="material-symbols-outlined">login</span> Login Profissional</h2>
       <form id="profissional-login-form">
         <label for="profissional-login-email">Email:</label>
-        <input type="email" id="profissional-login-email" name="profissional-login-email" required placeholder="seuemail@example.com">
+        <input type="email" id="profissional-login-email" name="profissional-login-email" required placeholder="seuemail@example.com" />
         <label for="profissional-login-password">Senha:</label>
-        <input type="password" id="profissional-login-password" name="profissional-login-password" required placeholder="Sua senha">
+        <input type="password" id="profissional-login-password" name="profissional-login-password" required placeholder="Sua senha" />
         <button type="submit"><span class="material-symbols-outlined">login</span> Entrar</button>
         <button type="button" id="profissional-register"><span class="material-symbols-outlined">person_add</span> Registrar</button>
         <button type="button" id="voltar-inicial-profissional-login" class="secondary-button"><span class="material-symbols-outlined">arrow_back</span> Voltar</button>
@@ -93,16 +94,16 @@
       <h2><span class="material-symbols-outlined">person_add</span> Cadastro Profissional</h2>
       <form id="register-profissional-form">
         <label for="profissional-nome">Nome:</label>
-        <input type="text" id="profissional-nome" name="profissional-nome" required placeholder="Nome Completo">
+        <input type="text" id="profissional-nome" name="profissional-nome" required placeholder="Nome Completo" />
 
         <label for="profissional-telefone">Telefone:</label>
-        <input type="tel" id="profissional-telefone" name="profissional-telefone" required placeholder="(XX) XXXXX-XXXX">
+        <input type="tel" id="profissional-telefone" name="profissional-telefone" required placeholder="(XX) XXXXX-XXXX" />
 
         <label for="profissional-email">Email:</label>
-        <input type="email" id="profissional-email" name="profissional-email" required placeholder="seuemail@example.com">
+        <input type="email" id="profissional-email" name="profissional-email" required placeholder="seuemail@example.com" />
 
         <label for="profissional-cidade">Cidade:</label>
-        <input type="text" id="profissional-cidade" name="profissional-cidade" required placeholder="Sua cidade">
+        <input type="text" id="profissional-cidade" name="profissional-cidade" required placeholder="Sua cidade" />
 
         <label for="profissional-especialidade">Especialidade:</label>
         <select id="profissional-especialidade" name="profissional-especialidade" required>
@@ -112,10 +113,10 @@
         </select>
 
         <label for="profissional-registro" id="profissional-registro-label">Registro Profissional:</label>
-        <input type="text" id="profissional-registro" name="profissional-registro" required placeholder="Número do registro (COREN, etc.)">
+        <input type="text" id="profissional-registro" name="profissional-registro" required placeholder="Número do registro (COREN, etc.)" />
 
         <label for="profissional-senha">Senha:</label>
-        <input type="password" id="profissional-senha" name="profissional-senha" required placeholder="Crie uma senha forte">
+        <input type="password" id="profissional-senha" name="profissional-senha" required placeholder="Crie uma senha forte" />
 
         <button type="submit"><span class="material-symbols-outlined">app_registration</span> Cadastrar</button>
         <button type="button" id="voltar-login" class="secondary-button"><span class="material-symbols-outlined">arrow_back</span> Voltar</button>
@@ -144,19 +145,19 @@
       <h2><span class="material-symbols-outlined">edit_note</span> Editar Dados Profissional</h2>
       <form id="editar-register-profissional-form">
         <label for="editar-profissional-nome">Nome:</label>
-        <input type="text" id="editar-profissional-nome" name="editar-profissional-nome" required>
+        <input type="text" id="editar-profissional-nome" name="editar-profissional-nome" required />
 
         <label for="editar-profissional-email">Email:</label>
-        <input type="text" id="editar-profissional-email" name="editar-profissional-email" required>
+        <input type="text" id="editar-profissional-email" name="editar-profissional-email" required />
 
         <label for="editar-profissional-senha">Senha:</label>
-        <input type="text" id="editar-profissional-senha" name="editar-profissional-senha" required>
+        <input type="text" id="editar-profissional-senha" name="editar-profissional-senha" required />
 
         <label for="editar-profissional-telefone">Telefone:</label>
-        <input type="tel" id="editar-profissional-telefone" name="editar-profissional-telefone" required>
+        <input type="tel" id="editar-profissional-telefone" name="editar-profissional-telefone" required />
 
         <label for="editar-profissional-cidade">Cidade:</label>
-        <input type="text" id="editar-profissional-cidade" name="editar-profissional-cidade" required>
+        <input type="text" id="editar-profissional-cidade" name="editar-profissional-cidade" required />
 
         <label for="editar-profissional-especialidade">Especialidade:</label>
         <select id="editar-profissional-especialidade" name="editar-profissional-especialidade" required>
@@ -166,7 +167,7 @@
         </select>
 
         <label for="editar-profissional-registro" id="editar-profissional-registro-label">Registro Profissional:</label>
-        <input type="text" id="editar-profissional-registro" name="editar-profissional-registro" required>
+        <input type="text" id="editar-profissional-registro" name="editar-profissional-registro" required />
 
         <button type="submit"><span class="material-symbols-outlined">save</span> Salvar Alterações</button>
         <button type="button" id="cancelar-edicao" class="secondary-button"><span class="material-symbols-outlined">cancel</span> Cancelar</button>
@@ -185,7 +186,7 @@
         </select>
 
         <label for="busca-cidade">Cidade:</label>
-        <input type="text" id="busca-cidade" name="busca-cidade" placeholder="Digite a cidade">
+        <input type="text" id="busca-cidade" name="busca-cidade" placeholder="Digite a cidade" />
 
         <button type="submit"><span class="material-symbols-outlined">search</span> Buscar</button>
         <button type="button" id="voltar-inicial-busca" class="secondary-button"><span class="material-symbols-outlined">arrow_back</span> Voltar</button>
@@ -202,9 +203,9 @@
       <h2><span class="material-symbols-outlined">login</span> Login Usuário</h2>
       <form id="usuario-login-form">
         <label for="usuario-login-email">Email:</label>
-        <input type="email" id="usuario-login-email" name="usuario-login-email" required placeholder="seuemail@example.com">
+        <input type="email" id="usuario-login-email" name="usuario-login-email" required placeholder="seuemail@example.com" />
         <label for="usuario-login-password">Senha:</label>
-        <input type="password" id="usuario-login-password" name="usuario-login-password" required placeholder="Sua senha">
+        <input type="password" id="usuario-login-password" name="usuario-login-password" required placeholder="Sua senha" />
         <button type="submit"><span class="material-symbols-outlined">login</span> Entrar</button>
         <button type="button" id="usuario-register"><span class="material-symbols-outlined">person_add</span> Registrar</button>
         <button type="button" id="voltar-inicial-usuario-login" class="secondary-button"><span class="material-symbols-outlined">arrow_back</span> Voltar</button>
@@ -216,13 +217,13 @@
       <h2><span class="material-symbols-outlined">person_add</span> Cadastro Usuário</h2>
       <form id="register-usuario-form">
         <label for="usuario-nome">Nome:</label>
-        <input type="text" id="usuario-nome" name="usuario-nome" required placeholder="Seu Nome Completo">
+        <input type="text" id="usuario-nome" name="usuario-nome" required placeholder="Seu Nome Completo" />
 
         <label for="usuario-email">Email:</label>
-        <input type="email" id="usuario-email" name="usuario-email" required placeholder="seuemail@example.com">
+        <input type="email" id="usuario-email" name="usuario-email" required placeholder="seuemail@example.com" />
 
         <label for="usuario-senha">Senha:</label>
-        <input type="password" id="usuario-senha" name="usuario-senha" required placeholder="Crie uma senha forte">
+        <input type="password" id="usuario-senha" name="usuario-senha" required placeholder="Crie uma senha forte" />
 
         <button type="submit"><span class="material-symbols-outlined">app_registration</span> Cadastrar</button>
         <button type="button" id="voltar-login-usuario" class="secondary-button"><span class="material-symbols-outlined">arrow_back</span> Voltar</button>
@@ -230,11 +231,9 @@
     </section>
   </main>
 
-  <!-- Seção do Chat -->
+  <!-- Chat com o Usuário -->
     <section id="chat-section" class="hidden">
       <h2><span class="material-symbols-outlined">chat</span> Chat com Profissional</h2>
-      
-      <!-- Painel de chat do usuário -->
       <div id="user-chat-panel" class="chat-panel">
         <div id="user-chat-header" class="chat-header">
           <span id="user-chat-recipient-name">Profissional</span>
@@ -250,36 +249,23 @@
       </div>
     </section>
 
-  <!-- User's Chat Panel -->
-  <div id="user-chat-panel" class="chat-panel hidden">
-    <div id="user-chat-header" class="chat-header">
-      <span id="user-chat-recipient-name"></span>
-      <button id="user-chat-close-button" class="chat-close-button"><span class="material-symbols-outlined">close</span></button>
-    </div>
-    <div id="user-chat-messages" class="chat-messages">
-      <!-- Messages will be appended here -->
-    </div>
-    <div id="user-chat-input-area" class="chat-input-area">
-      <textarea id="user-chat-message-input" placeholder="Digite sua mensagem..."></textarea>
-      <button id="user-chat-send-button"><span class="material-symbols-outlined">send</span> Enviar</button>
-    </div>
-  </div>
-
-  <!-- Professional's Simulated Chat Panel -->
-  <div id="professional-chat-panel" class="chat-panel hidden">
-    <div id="professional-chat-header" class="chat-header">
-      <span id="professional-chat-recipient-name"></span>
-      <button id="professional-chat-close-button" class="chat-close-button"><span class="material-symbols-outlined">close</span></button>
-    </div>
-    <div id="professional-chat-messages" class="chat-messages">
-      <!-- Messages will be appended here -->
-    </div>
-    <div id="professional-chat-input-area" class="chat-input-area">
-      <textarea id="professional-chat-message-input" placeholder="Digite sua mensagem..."></textarea>
-      <button id="professional-chat-send-button"><span class="material-symbols-outlined">send</span> Enviar</button>
-      <button id="professional-release-data-button" class="release-data-button"><span class="material-symbols-outlined">share_reviews</span> Liberar Dados</button>
-    </div>
-  </div>
+    <!-- Chat do Profissional -->
+    <section id="professional-chat-section" class="hidden">
+      <h2><span class="material-symbols-outlined">chat</span> Chat com o Usuário</h2>
+      <div id="professional-chat-panel" class="chat-panel">
+        <div id="professional-chat-header" class="chat-header">
+          <span id="professional-chat-recipient-name">Usuário</span>
+          <button id="professional-chat-close-button" class="chat-close-button"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        <div id="professional-chat-messages" class="chat-messages">
+          <!-- Mensagens do chat aqui -->
+        </div>
+        <div id="professional-chat-input-area" class="chat-input-area">
+          <textarea id="professional-chat-message-input" placeholder="Digite sua mensagem..."></textarea>
+          <button id="professional-chat-send-button"><span class="material-symbols-outlined">send</span> Enviar</button>
+        </div>
+      </div>
+    </section>
 
   <footer>
     <p>&copy; 2024 Sistema de Cuidadores - CAREGIVER ANYWHERE</p>
@@ -287,3 +273,4 @@
 </body>
 
 </html>
+
