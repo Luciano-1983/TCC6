@@ -29,33 +29,33 @@ let profissionaisConectados = {};
 io.on('connection', (socket) => {
     console.log('Usuário conectado:', socket.id);
 
-    // Quando o usuário faz login, ele envia seu ID e o tipo (usuário ou profissional)
     socket.on('login', (data) => {
         if (data.type === 'user') {
             usuariosConectados[socket.id] = data.userId;
-            console.log('Usuário conectado com ID:', data.userId);
+            console.log(`Usuário conectado: ${data.userId} com socket id: ${socket.id}`);
         } else if (data.type === 'professional') {
             profissionaisConectados[socket.id] = data.userId;
-            console.log('Profissional conectado com ID:', data.userId);
+            console.log(`Profissional conectado: ${data.userId} com socket id: ${socket.id}`);
         }
     });
 
     // Receber mensagens e encaminhar para o profissional específico
     socket.on('send_message', (data) => {
-        const { fromUserId, toProfessionalId, message } = data;
+    const { fromUserId, toProfessionalId, message } = data;
 
-        // Envia a mensagem para o profissional correto
-        for (let socketId in profissionaisConectados) {
-            if (profissionaisConectados[socketId] === toProfessionalId) {
-                io.to(socketId).emit('receive_message', {
-                    fromUserId,
-                    message
-                });
-                console.log('Mensagem enviada ao profissional:', toProfessionalId);
-                break;
-            }
+    console.log(`Enviando mensagem de usuário ${fromUserId} para profissional ${toProfessionalId}: ${message}`);
+
+    for (let socketId in profissionaisConectados) {
+        if (profissionaisConectados[socketId] === toProfessionalId) {
+            io.to(socketId).emit('receive_message', {
+                fromUserId,
+                message
+            });
+            console.log(`Mensagem enviada ao profissional: ${toProfessionalId}`);
+            break;
         }
-    });
+    }
+});
 
     // Desconectar o usuário ou profissional
     socket.on('disconnect', () => {

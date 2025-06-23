@@ -64,35 +64,42 @@ document.addEventListener('DOMContentLoaded', () => {
     let usuarioLogado = null;
     let profissionalIdSelecionado = null;  // Armazena o ID do profissional escolhido pelo usuário
 
-    // Função para enviar mensagens
-    document.getElementById('user-chat-send-button').addEventListener('click', () => {
-        const message = document.getElementById('user-chat-message-input').value;
-        
-        // Verifica se a mensagem não está vazia
-        if (message.trim() !== "" && profissionalIdSelecionado) {
-            socket.emit('send_message', { fromUserId: usuarioLogado.id, toProfessionalId: profissionalIdSelecionado, message });
-            exibirMensagemNoChat('Você: ' + message, 'sent');
-            document.getElementById('user-chat-message-input').value = ''; // Limpa o campo
-        } else {
-            alert("Digite uma mensagem para enviar.");
-        }
-    });
+// Verifique se o 'profissionalIdSelecionado' está sendo atribuído corretamente
+document.getElementById('lista-profissionais').addEventListener('click', function(event) {
+    if (event.target.classList.contains('chat-button')) {
+        profissionalIdSelecionado = event.target.dataset.profissionalId;
+        iniciarChatComProfissional(profissionalIdSelecionado);
+    }
+});
+
+    // Envia a mensagem para o Socket.IO
+document.getElementById('user-chat-send-button').addEventListener('click', () => {
+    const message = document.getElementById('user-chat-message-input').value;
+
+    if (message.trim() !== "" && profissionalIdSelecionado) {
+        socket.emit('send_message', { fromUserId: usuarioLogado.id, toProfessionalId: profissionalIdSelecionado, message });
+        exibirMensagemNoChat('Você: ' + message, 'sent');
+        document.getElementById('user-chat-message-input').value = ''; // Limpa o campo
+    } else {
+        alert("Digite uma mensagem para enviar.");
+    }
+});
 
     // Exibe a mensagem no chat
     function exibirMensagemNoChat(message, type) {
-        const messageContainer = document.getElementById('user-chat-messages');
-        const newMessage = document.createElement('div');
-        newMessage.classList.add('message', type); // 'sent' ou 'received'
-        newMessage.textContent = message;
-        messageContainer.appendChild(newMessage);
-        messageContainer.scrollTop = messageContainer.scrollHeight;
-    }
+    const messageContainer = document.getElementById('user-chat-messages');
+    const newMessage = document.createElement('div');
+    newMessage.classList.add('message', type); // 'sent' ou 'received'
+    newMessage.textContent = message;
+    messageContainer.appendChild(newMessage);
+    messageContainer.scrollTop = messageContainer.scrollHeight;
+}
 
-    // Recebe as mensagens em tempo real
-    socket.on('receive_message', (data) => {
-        const { fromUserId, message } = data;
-        exibirMensagemNoChat('Profissional: ' + message, 'received');
-    });
+// Verifique se o profissional está recebendo as mensagens também
+socket.on('receive_message', (data) => {
+    const { fromUserId, message } = data;
+    exibirMensagemNoChat('Profissional: ' + message, 'received');
+});
 
     // Função para login do usuário ou profissional
     function login(userId, type) {
